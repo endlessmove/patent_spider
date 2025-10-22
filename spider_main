@@ -39,10 +39,19 @@ async def main(init_page, key_word, url):
    
         checkbox_selector = f"input[type='checkbox'][value='{key_word}']"
         await page.wait_for_selector(checkbox_selector)
-
+        await asyncio.sleep(1.0)
         # 点击复选框
         await page.click(checkbox_selector)
         print("✅ 已点击复选框")
+        # 修改每页显示的专利数量
+        current_val = await page.locator("#perPageDiv .sort-default span").text_content()
+        if current_val.strip() != "50":
+            await page.click("#perPageDiv .sort-default")
+            await page.wait_for_selector("#perPageDiv .sort-list", state="visible")
+            await page.click("#perPageDiv .sort-list li[data-val='50'] a")
+            print("✅ 设置为每页 50 条")
+        else:
+            print("✅ 已经是 50 条/页，无需修改")
 
         if num_page > 1:
             for i in range(1,num_page):
@@ -143,3 +152,4 @@ if __name__ == "__main__":
     key_word = "xxxx"  #  需要与网页中的关键词一致
     url = "https://xxx.xxx.xx/xxxx"  # 搜索页面
     asyncio.run(main(init_page, key_word, url))
+
